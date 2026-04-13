@@ -1,7 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 import UnicornScene from "unicornstudio-react";
 import { motion } from "motion/react";
 import { ArrowDown, Github, Linkedin, Twitter } from "lucide-react";
+
+const MemoizedUnicornScene = memo(() => (
+  <UnicornScene
+    projectId="4AovqpOSEDMwmL3MY7Jc"
+    width="100%"
+    height="100%"
+    scale={1}
+    dpi={typeof window !== "undefined" ? Math.min(window.devicePixelRatio, 2) : 1}
+    sdkUrl="https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@2.1.6/dist/unicornStudio.umd.js"
+  />
+));
 
 export function HeroSection() {
   const [loaded, setLoaded] = useState(false);
@@ -16,14 +27,7 @@ export function HeroSection() {
       {/* UnicornScene Background */}
       <div className="absolute inset-0 w-full h-full">
         <div className="w-full h-full flex items-center justify-center">
-          <UnicornScene
-            projectId="4AovqpOSEDMwmL3MY7Jc"
-            width="1440px"
-            height="900px"
-            scale={1}
-            dpi={1.5}
-            sdkUrl="https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@2.1.6/dist/unicornStudio.umd.js"
-          />
+          <MemoizedUnicornScene />
         </div>
         {/* Gradient overlay for readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#050510]/30 via-transparent to-[#050510]" />
@@ -48,9 +52,9 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : 40 }}
           transition={{ duration: 0.9, delay: 0.35 }}
-          className="text-white mt-4 mb-6"
+          className="text-white mt-4 mb-6 px-4 md:px-0"
           style={{
-            fontSize: "clamp(3rem, 8vw, 6rem)",
+            fontSize: "clamp(2.5rem, 10vw, 6rem)",
             fontWeight: 800,
             letterSpacing: "-0.03em",
             lineHeight: 1.05,
@@ -75,8 +79,8 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : 30 }}
           transition={{ duration: 0.8, delay: 0.5 }}
-          className="text-white/60 max-w-xl mb-10"
-          style={{ fontSize: "1.125rem", lineHeight: 1.7 }}
+          className="text-white/60 max-w-xl mb-10 px-4 md:px-0"
+          style={{ fontSize: "clamp(1rem, 4vw, 1.125rem)", lineHeight: 1.7 }}
         >
           I craft exceptional digital experiences that live at the intersection of design and technology. 
           Turning complex ideas into elegant, scalable solutions.
@@ -86,18 +90,18 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : 20 }}
           transition={{ duration: 0.8, delay: 0.65 }}
-          className="flex flex-wrap items-center justify-center gap-4"
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full px-6 sm:px-0"
         >
           <button
             onClick={() => document.querySelector("#projects")?.scrollIntoView({ behavior: "smooth" })}
-            className="px-8 py-3.5 rounded-full bg-violet-600 hover:bg-violet-500 text-white transition-all duration-300 hover:shadow-lg hover:shadow-violet-500/30 hover:-translate-y-0.5 cursor-pointer"
+            className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-violet-600 hover:bg-violet-500 text-white transition-all duration-300 hover:shadow-lg hover:shadow-violet-500/30 hover:-translate-y-0.5 cursor-pointer"
             style={{ fontWeight: 600, fontSize: "0.95rem" }}
           >
             View My Work
           </button>
           <button
             onClick={() => document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" })}
-            className="px-8 py-3.5 rounded-full border border-white/20 hover:border-white/40 text-white/80 hover:text-white bg-white/5 hover:bg-white/10 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 cursor-pointer"
+            className="w-full sm:w-auto px-8 py-3.5 rounded-full border border-white/20 hover:border-white/40 text-white/80 hover:text-white bg-white/5 hover:bg-white/10 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 cursor-pointer"
             style={{ fontWeight: 500, fontSize: "0.95rem" }}
           >
             Get In Touch
@@ -109,7 +113,7 @@ export function HeroSection() {
           initial={{ opacity: 0 }}
           animate={{ opacity: loaded ? 1 : 0 }}
           transition={{ duration: 0.8, delay: 0.9 }}
-          className="flex items-center gap-5 mt-12"
+          className="flex flex-wrap items-center justify-center gap-5 mt-12 px-6"
         >
           {[
             { icon: Github, href: "https://github.com/sohagabir112", label: "GitHub" },

@@ -3,25 +3,13 @@ import { motion, useInView } from "motion/react";
 import { Mail, MapPin, Send, Github, Linkedin, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 
 /**
- * Google Sheets Integration via Google Apps Script
- *
- * To enable real submissions to your Google Sheet:
- * 1. Open your Google Sheet: https://docs.google.com/spreadsheets/d/14bGBt2tLD2yMMHd9Wxte0BII8uvlNmA0AV74LH6y2cY
- * 2. Go to Extensions → Apps Script
- * 3. Paste this code and click Deploy → New Deployment → Web App (Anyone can access):
- *
- * function doPost(e) {
- *   const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
- *   const data = JSON.parse(e.postData.contents);
- *   sheet.appendRow([new Date(), data.name, data.email, data.subject, data.message]);
- *   return ContentService
- *     .createTextOutput(JSON.stringify({ status: "success" }))
- *     .setMimeType(ContentService.MimeType.JSON);
- * }
- *
- * 4. Copy the deployment URL and replace APPS_SCRIPT_URL below.
+ * Webhook Integration (n8n, Zapier, etc.)
+ * 
+ * To enable real submissions:
+ * 1. In n8n, use either the unique ID or a custom path (e.g., "form-submission").
+ * 2. Use the "Production" URL for permanent use, or "Test" URL for debugging.
  */
-const APPS_SCRIPT_URL = "YOUR_APPS_SCRIPT_DEPLOYMENT_URL_HERE";
+const WEBHOOK_URL = "https://aiworkers.app.n8n.cloud/webhook/f4d141bc-dba7-45a0-b667-e2e82efe9eab";
 
 type Status = "idle" | "loading" | "success" | "error";
 
@@ -39,24 +27,31 @@ export function ContactSection() {
     e.preventDefault();
     setStatus("loading");
 
-    // If the Apps Script URL has been set, POST to it
-    if (APPS_SCRIPT_URL !== "YOUR_APPS_SCRIPT_DEPLOYMENT_URL_HERE") {
+    if (WEBHOOK_URL && WEBHOOK_URL.includes("https://")) {
       try {
-        await fetch(APPS_SCRIPT_URL, {
+        const response = await fetch(WEBHOOK_URL, {
           method: "POST",
-          mode: "no-cors", // Apps Script requires no-cors
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...form, timestamp: new Date().toISOString() }),
         });
-        setStatus("success");
-        setForm({ name: "", email: "", subject: "", message: "" });
-        setTimeout(() => setStatus("idle"), 5000);
-      } catch {
+
+        // n8n webhooks usually return 200/201 on success.
+        // Webhook-test URLs return 404 if the listener isn't active in n8n.
+        if (response.ok) {
+          setStatus("success");
+          setForm({ name: "", email: "", subject: "", message: "" });
+          setTimeout(() => setStatus("idle"), 5000);
+        } else {
+          console.error(`Submission failed: ${response.status} ${response.statusText}`);
+          throw new Error("Webhook rejected request");
+        }
+      } catch (err) {
+        console.error("Form submission error:", err);
         setStatus("error");
         setTimeout(() => setStatus("idle"), 5000);
       }
     } else {
-      // Demo mode — simulate submission
+      // Demo logic
       await new Promise((r) => setTimeout(r, 1200));
       setStatus("success");
       setForm({ name: "", email: "", subject: "", message: "" });
@@ -88,13 +83,13 @@ export function ContactSection() {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-5 gap-10 items-start">
+        <div className="grid md:grid-cols-5 gap-8 lg:gap-12 items-start">
           {/* Info Cards */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             animate={inView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="md:col-span-2 flex flex-col gap-5"
+            className="md:col-span-2 flex flex-col gap-4 sm:gap-5"
           >
             {[
               {
@@ -132,16 +127,16 @@ export function ContactSection() {
             ].map(({ icon: Icon, title, value, sub, color, href }) => (
               <div
                 key={title}
-                className="p-5 rounded-2xl border border-white/5 bg-white/[0.02] hover:border-white/10 transition-all duration-300 flex items-center gap-4"
+                className="p-4 sm:p-5 rounded-2xl border border-white/5 bg-white/[0.02] hover:border-white/10 transition-all duration-300 flex items-center gap-4"
               >
                 <div
-                  className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0"
                   style={{ backgroundColor: `${color}15`, border: `1px solid ${color}30` }}
                 >
-                  <Icon size={18} style={{ color }} />
+                  <Icon size={16} style={{ color }} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-white/40 mb-0.5" style={{ fontSize: "0.72rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                  <p className="text-white/40 mb-0.5" style={{ fontSize: "0.7rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
                     {title}
                   </p>
                   {href ? (
@@ -150,38 +145,17 @@ export function ContactSection() {
                       target={href.startsWith("http") ? "_blank" : undefined}
                       rel="noopener noreferrer"
                       className="text-white hover:text-violet-300 transition-colors truncate block"
-                      style={{ fontSize: "0.9rem", fontWeight: 600 }}
+                      style={{ fontSize: "0.85rem", fontWeight: 600 }}
                     >
                       {value}
                     </a>
                   ) : (
-                    <p className="text-white truncate" style={{ fontSize: "0.9rem", fontWeight: 600 }}>{value}</p>
+                    <p className="text-white truncate" style={{ fontSize: "0.85rem", fontWeight: 600 }}>{value}</p>
                   )}
-                  <p className="text-white/40" style={{ fontSize: "0.78rem" }}>{sub}</p>
+                  <p className="text-white/40" style={{ fontSize: "0.75rem" }}>{sub}</p>
                 </div>
               </div>
             ))}
-
-            {/* Google Sheet note */}
-            <div className="p-5 rounded-2xl border border-violet-500/20 bg-violet-500/5 flex items-start gap-3">
-              <div className="w-5 h-5 mt-0.5 flex-shrink-0">
-                <svg viewBox="0 0 24 24" fill="currentColor" className="text-violet-400">
-                  <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/>
-                </svg>
-              </div>
-              <p className="text-white/50" style={{ fontSize: "0.85rem", lineHeight: 1.6 }}>
-                Messages are logged to a{" "}
-                <a
-                  href="https://docs.google.com/spreadsheets/d/14bGBt2tLD2yMMHd9Wxte0BII8uvlNmA0AV74LH6y2cY"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-violet-400 hover:text-violet-300 underline underline-offset-2 transition-colors"
-                >
-                  Google Sheet
-                </a>{" "}
-                for easy tracking.
-              </p>
-            </div>
           </motion.div>
 
           {/* Form */}
@@ -193,15 +167,15 @@ export function ContactSection() {
           >
             <form
               onSubmit={handleSubmit}
-              className="p-8 rounded-2xl border border-white/5 bg-white/[0.02] flex flex-col gap-5"
+              className="p-5 sm:p-8 rounded-2xl border border-white/5 bg-white/[0.02] flex flex-col gap-4 sm:gap-5"
             >
-              <div className="grid sm:grid-cols-2 gap-5">
+              <div className="grid sm:grid-cols-2 gap-4 sm:gap-5">
                 {[
                   { name: "name", label: "Name", placeholder: "Your full name", type: "text" },
                   { name: "email", label: "Email", placeholder: "your@email.com", type: "email" },
                 ].map(({ name, label, placeholder, type }) => (
                   <div key={name} className="flex flex-col gap-2">
-                    <label className="text-white/50" style={{ fontSize: "0.78rem", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                    <label className="text-white/50" style={{ fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
                       {label}
                     </label>
                     <input
@@ -213,7 +187,7 @@ export function ContactSection() {
                       onChange={handleChange}
                       disabled={status === "loading"}
                       className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/[0.03] text-white placeholder-white/20 outline-none focus:border-violet-500/50 focus:bg-white/[0.05] transition-all duration-200 disabled:opacity-50"
-                      style={{ fontSize: "0.9rem" }}
+                      style={{ fontSize: "0.85rem" }}
                     />
                   </div>
                 ))}
@@ -294,10 +268,6 @@ export function ContactSection() {
                   </>
                 )}
               </button>
-
-              <p className="text-white/25 text-center" style={{ fontSize: "0.75rem" }}>
-                Submissions are saved to Google Sheets for easy management
-              </p>
             </form>
           </motion.div>
         </div>

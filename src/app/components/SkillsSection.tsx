@@ -94,7 +94,7 @@ export function SkillsSection() {
               initial={{ opacity: 0, y: 40 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.7, delay: catIdx * 0.15 }}
-              className="p-8 rounded-2xl border border-white/5 bg-white/[0.02] hover:border-white/10 transition-all duration-300"
+              className="p-6 sm:p-8 rounded-2xl border border-white/5 bg-white/[0.02] hover:border-white/10 transition-all duration-300"
             >
               <div className="flex items-center gap-3 mb-8">
                 <div

@@ -61,28 +61,28 @@ export function ProjectsSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
-          className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6"
+          className="flex flex-col lg:flex-row lg:items-end justify-between mb-14 gap-8"
         >
-          <div>
+          <div className="text-center lg:text-left">
             <p className="text-violet-400 mb-3" style={{ fontSize: "0.85rem", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" }}>
               Portfolio
             </p>
-            <h2 className="text-white" style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, letterSpacing: "-0.025em" }}>
+            <h2 className="text-white" style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 800, letterSpacing: "-0.025em" }}>
               Featured Projects
             </h2>
           </div>
           {/* Category Filter */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex items-center gap-2 overflow-x-auto pb-4 lg:pb-0 no-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`px-4 py-1.5 rounded-full border transition-all duration-200 cursor-pointer ${
+                className={`px-5 py-2 rounded-full border transition-all duration-200 cursor-pointer whitespace-nowrap ${
                   activeCategory === cat
                     ? "bg-violet-600 border-violet-600 text-white"
-                    : "border-white/10 text-white/50 hover:text-white hover:border-white/20 bg-transparent"
+                    : "border-white/10 text-white/50 hover:text-white hover:border-white/20 bg-transparent shadow-sm"
                 }`}
-                style={{ fontSize: "0.8rem", fontWeight: 500 }}
+                style={{ fontSize: "0.85rem", fontWeight: 500 }}
               >
                 {cat}
               </button>

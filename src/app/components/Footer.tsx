@@ -17,8 +17,8 @@ export function Footer() {
         </a>
 
         {/* Copyright */}
-        <p className="text-white/30 flex items-center gap-1.5" style={{ fontSize: "0.85rem" }}>
-          Made with <Heart size={13} className="text-violet-400 fill-violet-400" /> by Sohag Abir · {new Date().getFullYear()}
+        <p className="text-white/30 flex items-center justify-center gap-1.5 text-center" style={{ fontSize: "0.85rem" }}>
+          Made with <Heart size={13} className="text-violet-400 fill-violet-400 flex-shrink-0" /> by Sohag Abir · {new Date().getFullYear()}
         </p>
 
         {/* Social */}
